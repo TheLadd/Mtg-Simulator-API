@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.entity.Card;
+import com.example.demo.entity.Move;
 import com.example.demo.entity.Player;
 import com.example.demo.exception.GameFullException;
 import com.example.demo.exception.InvalidMoveException;
@@ -21,12 +23,15 @@ public class PlayerService {
         this.cardService = cardService;
     }
 
-    public boolean addPlayer() throws GameFullException { return false; }
-    public boolean buildDeck(int playerId, String archidektString) throws InvalidSyntaxException { return false; }  // Also throws whatever a bad request to Scryfall would throw
-    public void shuffle(int playerId) {};
-    public boolean tap(int playerId, int index) { return false; }
-    public boolean flip(int playerId, String zone, int index) throws InvalidMoveException { return false; } // NOTE: zoneString should already contain playerId, right?
-    public int adjustLife(int playerId, int x) { return -1; }
+    public static List<Card> getZoneByString(String zone) { return null; }
 
-    public boolean move(String origZone, int origIndex, String destZone, int destIndex) throws InvalidSyntaxException { return false; }
+    public Boolean addPlayer() throws GameFullException { return false; }
+    public List<Card> setLibrary(int playerId, List<Card> deck) { return null; }
+    public List<Card> getLibrary(int playerId) { return null; }
+    public List<Card> shuffle(int playerId) { return null; }
+    public Boolean tap(int playerId, int index) { return false; }
+    public Boolean flip(int playerId, String zone, int index) throws InvalidMoveException { return false; } // NOTE: zoneString should already contain playerId, right?
+    public Integer adjustLife(int playerId, int x) { return -1; }
+
+    public Boolean move(Move move) throws InvalidSyntaxException { return false; }
 }
