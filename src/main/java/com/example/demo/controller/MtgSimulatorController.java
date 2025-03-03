@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -45,20 +46,25 @@ public class MtgSimulatorController {
     @PatchMapping(value = "/player/{playerId}/move")
     public Boolean makeMoveByPlayerId(@RequestBody Move move, @PathVariable Integer playerId) { 
         return playerService.move(move);
-     }
+    }
 
-     @PatchMapping(value = "/player/{playerId}/library/shuffle")
-     public List<Card> shuffleLibraryByPlayerId(@PathVariable Integer playerId) {
-        return playerService.shuffle(playerId);
-     }
+    @PatchMapping(value = "/player/{playerId}/library/shuffle")
+    public List<Card> shuffleLibraryByPlayerId(@PathVariable Integer playerId) {
+       return playerService.shuffle(playerId);
+    }
 
-     @PatchMapping(value = "/player/{playerId}/battlefield/tap")
-     public Boolean tapCardByPlayerId(@RequestBody Integer index, @PathVariable Integer playerId) {
-        return playerService.tap(playerId, index);
-     }
+    @PatchMapping(value = "/player/{playerId}/battlefield/tap")
+    public Boolean tapCardByPlayerId(@RequestBody Integer index, @PathVariable Integer playerId) {
+       return playerService.tap(playerId, index);
+    }
 
-     @PatchMapping(value = "/player/{playerId}/flip")
-     public Boolean tapCardByPlayerId(@RequestBody Integer index, @PathVariable Integer playerId) {
-        return playerService.tap(playerId, index);
-     }
+    @PatchMapping(value = "/player/{playerId}/{zone}/flip")
+    public Boolean flipCardByPlayerId(@RequestBody Integer index, @PathVariable Integer playerId) {
+       return playerService.tap(playerId, index);
+    }
+
+    @PutMapping(value = "/player/{playerId}/life")
+    public Integer adjustLifeByPlayerId(@RequestBody Integer newLife, @PathVariable Integer playerId) {
+        return playerService.adjustLife(playerId, newLife);
+    }
 }
