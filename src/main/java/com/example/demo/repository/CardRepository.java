@@ -11,6 +11,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.example.demo.exception.InvalidSyntaxException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Repository
 public class CardRepository {
@@ -33,7 +34,6 @@ public class CardRepository {
             .GET()
             .build();
 
-        // TODO: .ofString() because JSON is processed as a string?
         HttpResponse<String> response = webClient.send(request, HttpResponse.BodyHandlers.ofString() );
         int status = response.statusCode();
         if (status != 200) {
@@ -41,12 +41,8 @@ public class CardRepository {
             throw new InvalidSyntaxException(String.format(msg, status));
         }
     
-        // System.out.println(response.body());
-        // ObjectMapper om = new ObjectMapper();
-        // Map<String, String> json = om.readValue(response.body(), new TypeReference<Map<String, String>>() {});
-        // Map<String, String> image_uris = om.readValue(json.get("image_uris"), new TypeReference<Map<String, String>>() {});
-
-        // return Optional.of(image_uris.get("normal"));
-        return Optional.of(response.body());
+        ObjectMapper om = new ObjectMapper();
+        String link = om.readTree(response.body()).get("image_uris").get("normal").textValue();
+        return Optional.of(link);
     }
 }

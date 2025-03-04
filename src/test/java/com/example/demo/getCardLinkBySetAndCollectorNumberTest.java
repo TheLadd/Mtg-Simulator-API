@@ -42,4 +42,15 @@ public class getCardLinkBySetAndCollectorNumberTest {
         Optional<String> retrievedCardLink = cardRepository.getCardLinkBySetAndCollectorNumber(setCode, collectorNumber);
         Assertions.assertEquals(actualCardLink, retrievedCardLink.get());
     }
+
+    @Test
+    public void getCardLinkUnsuccessful() throws IOException, InterruptedException, InvalidSyntaxException {
+        // Composite key for a card that doesn't exist 
+        String setCode = "otc";
+        Integer collectorNumber = 999;
+
+
+        InvalidSyntaxException e = Assertions.assertThrows(InvalidSyntaxException.class, () -> cardRepository.getCardLinkBySetAndCollectorNumber(setCode, collectorNumber));
+        Assertions.assertTrue(e.getMessage().contains("Scryfall responded with status code"));
+    }
 }
