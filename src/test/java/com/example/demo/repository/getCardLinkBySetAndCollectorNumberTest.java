@@ -3,34 +3,18 @@ package com.example.demo.repository;
 import java.io.IOException;
 import java.util.Optional;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.ApplicationContext;
 
-import com.example.demo.MtgApp;
 import com.example.demo.exception.InvalidSyntaxException;
 
 public class getCardLinkBySetAndCollectorNumberTest {
-    ApplicationContext app;
-
-    // @Autowired
     CardRepository cardRepository;
 
     @BeforeEach
-    public void setup() throws InterruptedException {
+    public void setup() {
         cardRepository = new CardRepository();
-        String[] args = new String[] {};
-        app = SpringApplication.run(MtgApp.class, args);
-        Thread.sleep(500);
-    }
-
-    @AfterEach
-    public void teardown() throws InterruptedException {
-        Thread.sleep(500);
-        SpringApplication.exit(app);
     }
 
     @Test

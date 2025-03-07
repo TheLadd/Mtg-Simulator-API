@@ -24,7 +24,7 @@ public class CardService {
         this.cardRepository = cardRepository;
     }
 
-    private List<ScryfallCompositeKey> extractCompositeKeys(String archidektFileContents) throws InvalidSyntaxException { 
+    public List<ScryfallCompositeKey> extractCompositeKeys(String archidektFileContents) throws InvalidSyntaxException { 
         /*  Assumptions:
          *  - The default export to txt option is used on Archidekt.com
          *  - No cards have "(", ")", "[", or "]" in their title
@@ -38,29 +38,43 @@ public class CardService {
 
         List<String> lines = new ArrayList<>( Arrays.asList(archidektFileContents.split("\n")) );
         List<String> words = new ArrayList<>(2);
-        Integer begin, end, collectorNumber;
+        Integer begin, end, quantity, collectorNumber;
         String setCode;
         ScryfallCompositeKey key;
         for (String line : lines) {
+            end = line.indexOf("x");
+            quantity = Integer.valueOf(line.substring(0, end));
+
             // Find where the title of the card ends and categories begin
             begin = line.indexOf("(");
             end = line.indexOf("[");
 
             // Get the section of the line containing setCode and collectorNumber
             words.clear();
-            words = Arrays.asList(line.substring(begin, end));
+            words.addAll( Arrays.asList(line.substring(begin, end).split(" ")) );
 
             // Grab the important bits and construct our key
-            setCode = words.get(0).substring(1, 4); // Set code should be form of "(xxx)"
-            collectorNumber = Integer.valueOf(words.get(1));
-            key = new ScryfallCompositeKey(setCode, collectorNumber);
+            end = words.get(0).indexOf(")");
+            setCode = words.get(0).substring(1, end); // Set code should be form of "(xxx)"
+
+            // Check if card is part of "The List". Make appropriate adjustments if so
+            if (setCode.equals("plst")) {
+                setCode = words.get(1).substring(0, 3);
+                collectorNumber = Integer.valueOf(words.get(1).substring(3));
+            }
+            else {
+                collectorNumber = Integer.valueOf(words.get(1));
+            }
 
             // Put in "deck" (on top if commander)
+            key = new ScryfallCompositeKey(setCode, collectorNumber);
             if (line.substring(end).contains("Commander")) {
                 keys.set(0, key);
             }
             else {
-                keys.add(key);
+                for (int i = 0; i < quantity; i++) {
+                    keys.add(key);
+                }
             }
         }
 
