@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.repository;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -10,11 +10,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 
+import com.example.demo.MtgApp;
 import com.example.demo.exception.InvalidSyntaxException;
-import com.example.demo.repository.CardRepository;
 
 public class getCardLinkBySetAndCollectorNumberTest {
     ApplicationContext app;
+
+    // @Autowired
     CardRepository cardRepository;
 
     @BeforeEach

@@ -34,7 +34,7 @@ public class MtgSimulatorController {
 
     @PostMapping(value = "/player/{playerId}/library")
     public List<Card> createLibraryByPlayerId(@RequestBody String archidektFileContents, @PathVariable Integer playerId ) {
-        List<Card> library = CardService.buildDeck(archidektFileContents);
+        List<Card> library = cardService.getDeckFromArchidektFileContents(archidektFileContents);
         return playerService.setLibrary(playerId, library);
     }
 

@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
+import com.example.demo.entity.ScryfallCompositeKey;
 import com.example.demo.exception.InvalidSyntaxException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -17,24 +18,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class CardRepository {
     HttpClient webClient;
 
-    // @Autowired
-    // CardRepository(HttpClient webClient) {
     public CardRepository() {
         this.webClient = HttpClient.newHttpClient();
     }
 
-    public List<String> getCardLinksBySetAndCollectorNumber(String setCode, int collectorNumber) { return null; }
+    public List<String> getCardLinksSetCodeAndCollectorNumber(List<ScryfallCompositeKey> keys) { return null; }
+
+    // Note: this was for practice and doesn't have plans for production
     public Optional<String> getCardLinkBySetAndCollectorNumber(String setCode, int collectorNumber) 
         throws IOException, InterruptedException, InvalidSyntaxException { 
         String uri = "https://api.scryfall.com/cards/%s/%d";
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(String.format(uri, setCode, collectorNumber)))
             .header("format", "json")
-            .header("pretty", "true")
             .GET()
             .build();
 
-        HttpResponse<String> response = webClient.send(request, HttpResponse.BodyHandlers.ofString() );
+        HttpResponse<String> response = webClient.send(request, HttpResponse.BodyHandlers.ofString());
         int status = response.statusCode();
         if (status != 200) {
             String msg = "Scryfall responded with status code %d";

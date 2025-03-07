@@ -8,6 +8,8 @@ public class Card {
 
     public Card(String imgLink) {
         this.imgLink = imgLink;
+        this.isTapped = false;
+        this.isFlipped = false;
     }
 
     public Card(String imgLink, boolean isTapped, boolean isFlipped) {
