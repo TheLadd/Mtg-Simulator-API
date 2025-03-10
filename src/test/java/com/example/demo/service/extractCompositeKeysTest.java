@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,11 +28,24 @@ public class extractCompositeKeysTest {
 
     @Test
     public void extractCompositeKeysSuccessful() {
-        Path path = Paths.get("src/test/java/com/example/demo/resources/archidektFile-zahur.txt");
+        Path deckPath = Paths.get("src/test/java/com/example/demo/resources/archidektFile-zahur.txt");
+        Path keysPath = Paths.get("src/test/java/com/example/demo/resources/zahurCompositeKeys.txt");
         try {
-            String fileContents = new String(Files.readAllBytes(path));
-            List<ScryfallCompositeKey> keys = cardService.extractCompositeKeys(fileContents);
-            Assertions.assertEquals(keys, null);
+            String fileContents = new String(Files.readAllBytes(deckPath));
+            List<ScryfallCompositeKey> extractedKeys = cardService.extractCompositeKeys(fileContents);
+
+            List<ScryfallCompositeKey> actualKeys = Files.lines(keysPath)
+                                        .map(ScryfallCompositeKey::new)
+                                        .collect(Collectors.toList());
+            
+
+            for (int i = 0; i < 100; i++) {
+                Assertions.assertEquals(actualKeys.get(i), extractedKeys.get(i), 
+                    "The " + String.valueOf(i) + "-th expected element, " + actualKeys.get(i) 
+                    + " doesn't match it's corresponding actual element, " + extractedKeys.get(i));
+            }
+
+            // Assertions.assertEquals(actualKeys, extractedKeys);
         } catch(IOException e) {
             Assertions.fail("Invalid file path in extractCompositeKeysSuccessful(); " + e.getMessage());
         } catch (InvalidSyntaxException e) {

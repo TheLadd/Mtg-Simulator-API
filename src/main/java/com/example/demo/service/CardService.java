@@ -60,7 +60,7 @@ public class CardService {
             // Check if card is part of "The List". Make appropriate adjustments if so
             if (setCode.equals("plst")) {
                 setCode = words.get(1).substring(0, 3);
-                collectorNumber = Integer.valueOf(words.get(1).substring(3));
+                collectorNumber = Integer.valueOf(words.get(1).substring(4));   // Skip third character ('-')
             }
             else {
                 collectorNumber = Integer.valueOf(words.get(1));
