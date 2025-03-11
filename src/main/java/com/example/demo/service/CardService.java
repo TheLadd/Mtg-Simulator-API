@@ -41,41 +41,46 @@ public class CardService {
         Integer begin, end, quantity, collectorNumber;
         String setCode;
         ScryfallCompositeKey key;
-        for (String line : lines) {
-            end = line.indexOf("x");
-            quantity = Integer.valueOf(line.substring(0, end));
+        try {
+            for (String line : lines) {
+                end = line.indexOf("x");
+                quantity = Integer.valueOf(line.substring(0, end));
 
-            // Find where the title of the card ends and categories begin
-            begin = line.indexOf("(");
-            end = line.indexOf("[");
+                // Find where the title of the card ends and categories begin
+                begin = line.indexOf("(");
+                end = line.indexOf("[");
 
-            // Get the section of the line containing setCode and collectorNumber
-            words.clear();
-            words.addAll( Arrays.asList(line.substring(begin, end).split(" ")) );
+                // Get the section of the line containing setCode and collectorNumber
+                words.clear();
+                words.addAll( Arrays.asList(line.substring(begin, end).split(" ")) );
 
-            // Grab the important bits and construct our key
-            end = words.get(0).indexOf(")");
-            setCode = words.get(0).substring(1, end); // Set code should be form of "(xxx)"
+                // Grab the important bits and construct our key
+                end = words.get(0).indexOf(")");
+                setCode = words.get(0).substring(1, end); // Set code should be form of "(xxx)"
 
-            // Check if card is part of "The List". Make appropriate adjustments if so
-            if (setCode.equals("plst")) {
-                setCode = words.get(1).substring(0, 3);
-                collectorNumber = Integer.valueOf(words.get(1).substring(4));   // Skip third character ('-')
-            }
-            else {
-                collectorNumber = Integer.valueOf(words.get(1));
-            }
+                // Check if card is part of "The List". Make appropriate adjustments if so
+                if (setCode.equals("plst")) {
+                    setCode = words.get(1).substring(0, 3);
+                    collectorNumber = Integer.valueOf(words.get(1).substring(4));   // Skip third character ('-')
+                }
+                else {
+                    collectorNumber = Integer.valueOf(words.get(1));
+                }
 
-            // Put in "deck" (on top if commander)
-            key = new ScryfallCompositeKey(setCode, collectorNumber);
-            if (line.substring(end).contains("Commander")) {
-                keys.set(0, key);
-            }
-            else {
-                for (int i = 0; i < quantity; i++) {
-                    keys.add(key);
+                // Put in "deck" (on top if commander)
+                key = new ScryfallCompositeKey(setCode, collectorNumber);
+                if (line.substring(end).contains("Commander")) {
+                    keys.set(0, key);
+                }
+                else {
+                    for (int i = 0; i < quantity; i++) {
+                        keys.add(key);
+                    }
                 }
             }
+        } catch (IndexOutOfBoundsException e) {
+            String errMsg = "Invalid syntax in provided deck list." + e.getMessage();
+            throw new InvalidSyntaxException(errMsg);
         }
 
         return keys;

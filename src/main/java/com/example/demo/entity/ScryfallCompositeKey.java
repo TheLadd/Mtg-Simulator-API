@@ -28,12 +28,12 @@ public class ScryfallCompositeKey {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof ScryfallCompositeKey) || o == null) {
+        if (!(o instanceof ScryfallCompositeKey)) {
             return false;
         }
 
         ScryfallCompositeKey other = (ScryfallCompositeKey) o;
-        return (this.setCode.equals(other.getSetCode()) && this.collectorNumber.equals(other.getCollectorNumber()) );
+        return (this.getSetCode().equals(other.getSetCode()) && this.getCollectorNumber().equals(other.getCollectorNumber()) );
     }
 
     @Override
