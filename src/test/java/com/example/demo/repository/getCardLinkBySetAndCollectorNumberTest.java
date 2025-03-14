@@ -35,7 +35,6 @@ public class getCardLinkBySetAndCollectorNumberTest {
         String setCode = "otc";
         Integer collectorNumber = 999;
 
-
         InvalidSyntaxException e = Assertions.assertThrows(InvalidSyntaxException.class, () -> cardRepository.getCardLinkBySetAndCollectorNumber(setCode, collectorNumber));
         Assertions.assertTrue(e.getMessage().contains("Scryfall responded with status code"));
     }

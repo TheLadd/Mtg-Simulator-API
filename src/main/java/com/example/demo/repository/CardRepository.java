@@ -21,9 +21,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Repository
 public class CardRepository {
     HttpClient webClient;
+    ObjectMapper om;
 
     public CardRepository() {
         this.webClient = HttpClient.newHttpClient();
+        this.om = new ObjectMapper();
     }
 
     private HttpResponse<String> scryfallCollectionRequest(String body) 
@@ -38,20 +40,24 @@ public class CardRepository {
             return response;
     }
 
-    private String createScryfallCollectionRequestBody(List<String> cardIds) {
-            if (cardIds.isEmpty()) {
+    private String createScryfallCollectionRequestBody(List<ScryfallCompositeKey> keys) {
+            if (keys.isEmpty()) {
                 return null;
             }
 
-            String requestBodyTemplate = "{ \"identifiers\": [%s] }";
-            String requestBody = String.format(
-                requestBodyTemplate, 
-                cardIds.stream().collect(Collectors.joining(","))
-            );
-            return requestBody;
+            List<String> identifiers = new ArrayList<>(100);
+            String identifierTemplate =  "{ \"set\": \"%s\", \"collector_number\": \"%d\" }";
+            for (ScryfallCompositeKey key : keys) {
+                identifiers.add(String.format(identifierTemplate, key.getSetCode(), key.getCollectorNumber()));
+            }
+
+            return "{ \"identifiers\": [" + identifiers.stream().collect(Collectors.joining(",")) + "] }";
     }
 
     private void removeBackImageLinks(List<String> links) {
+            // Idea: can we do this in place? 
+            // links.stream().filter(link -> !link.contains("back")).collect(Collectors.toList());
+
             List<Integer> indicesToRemove = new ArrayList<>();
             for (int i = 0; i < links.size(); i++) {
                 if (links.get(i).contains("back")) {
@@ -75,21 +81,16 @@ public class CardRepository {
             }
 
             // 1. Make JSON package for collection POST request
-            List<String> cardIdentifiers = new ArrayList<>(100);
-            String singleIdentifier =  "{ \"set\": \"%s\", \"collector_number\": \"%d\" }";
-            for (ScryfallCompositeKey key : keys) {
-                cardIdentifiers.add(String.format(singleIdentifier, key.getSetCode(), key.getCollectorNumber()));
-            }
-            String requestBody = createScryfallCollectionRequestBody(cardIdentifiers);
+            String requestBody = createScryfallCollectionRequestBody(keys);
 
             // 2. Make request to Scryfall 
             HttpResponse<String> response = scryfallCollectionRequest(requestBody);
         
             // 3. Check if any queries card doesn't exist
-            ObjectMapper om = new ObjectMapper();
             JsonNode notFoundArray = om.readTree(response.body()).get("not_found");
             if (!notFoundArray.isEmpty()) {
-                throw new NonExistantCardException();
+                String msg = "Some card within list does not exist within Scryfall";
+                throw new NonExistantCardException(msg);
             }
 
             // 4. Extract image links from HTTP response
@@ -108,8 +109,7 @@ public class CardRepository {
 
 
     // Note: this was for practice and doesn't have plans for production
-    public Optional<String> getCardLinkBySetAndCollectorNumber(String setCode, int collectorNumber) 
-        throws IOException, InterruptedException, InvalidSyntaxException { 
+    public Optional<String> getCardLinkBySetAndCollectorNumber(String setCode, int collectorNumber) throws IOException, InterruptedException, InvalidSyntaxException { 
         String uri = "https://api.scryfall.com/cards/%s/%d";
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(String.format(uri, setCode, collectorNumber)))
@@ -124,7 +124,6 @@ public class CardRepository {
             throw new InvalidSyntaxException(String.format(msg, status));
         }
     
-        ObjectMapper om = new ObjectMapper();
         String link = om.readTree(response.body()).get("image_uris").get("normal").textValue();
         return Optional.of(link);
     }

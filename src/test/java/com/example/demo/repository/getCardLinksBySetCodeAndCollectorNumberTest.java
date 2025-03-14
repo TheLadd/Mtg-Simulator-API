@@ -47,6 +47,7 @@ public class getCardLinksBySetCodeAndCollectorNumberTest {
     public void getCardLinksBySetCodeAndCollectorNumberUnsuccessful() {
         ScryfallCompositeKey nonExistantCard = new ScryfallCompositeKey("orc", 999);
         List<ScryfallCompositeKey> keys = Arrays.asList(nonExistantCard);
-        Assertions.assertThrows(NonExistantCardException.class, () -> cardRepository.getCardLinksBySetCodeAndCollectorNumber(keys));
+        NonExistantCardException e =Assertions.assertThrows(NonExistantCardException.class, () -> cardRepository.getCardLinksBySetCodeAndCollectorNumber(keys));
+        Assertions.assertTrue(e.getMessage().contains("Some card within list does not exist within Scryfall"));
     }
 }

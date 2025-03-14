@@ -26,12 +26,16 @@ public class CardService {
         this.cardRepository = cardRepository;
     }
 
-    public List<ScryfallCompositeKey> extractCompositeKeys(String archidektFileContents) 
-        throws InvalidSyntaxException { 
+    public List<String> extractImageLinks(List<Card> cards) {
+        return cards.stream()
+                    .map(card -> card.getImg())
+                    .collect(Collectors.toList());
+    }
+
+    public List<ScryfallCompositeKey> extractCompositeKeys(String archidektFileContents) throws InvalidSyntaxException { 
         /*  Assumptions:
          *  - The default export to txt option is used on Archidekt.com
          *  - No cards have "(", ")", "[", or "]" in their title
-         *  - The 
          */
 
         // TODO: input sanitation/checking
@@ -55,7 +59,7 @@ public class CardService {
 
                 // Get the section of the line containing setCode and collectorNumber
                 words.clear();
-                words.addAll( Arrays.asList(line.substring(begin, end).split(" ")) );
+                words.addAll(Arrays.asList(line.substring(begin, end).split(" ")));
 
                 // Grab the important bits and construct our key
                 end = words.get(0).indexOf(")");
@@ -87,19 +91,17 @@ public class CardService {
         }
 
         return keys;
-     }
+    }
 
-    public List<Card> getDeckFromCompositeKeys(List<ScryfallCompositeKey> keys) 
-        throws IOException, InterruptedException { 
+    private List<Card> getDeckFromCompositeKeys(List<ScryfallCompositeKey> keys) throws IOException, InterruptedException { 
         List<Card> deck = cardRepository.getCardLinksBySetCodeAndCollectorNumber(keys)
                                 .stream()
                                 .map(Card::new)
                                 .collect(Collectors.toList());
         return deck;
-     } // Throws whatever bad request to Scryfall throws
+    } 
 
-    public List<Card> getDeckFromArchidektFileContents(String archidektFileContents) 
-        throws InvalidSyntaxException, InternalServerErrorException, GatewayTimeoutException {
+    public List<Card> getDeckFromArchidektFileContents(String archidektFileContents) throws InvalidSyntaxException, InternalServerErrorException, GatewayTimeoutException {
         try {
             List<ScryfallCompositeKey> keys = extractCompositeKeys(archidektFileContents);
             return getDeckFromCompositeKeys(keys);
@@ -108,7 +110,7 @@ public class CardService {
         } catch (InterruptedException e) {
             throw new GatewayTimeoutException(e.getMessage());
         }
-     } // Throws whatever bad request to Scryfall throws
+    } 
 
     private Optional<String> getCard(String setCode, int collectorNumber) throws IOException, InterruptedException, InvalidSyntaxException { 
             return cardRepository.getCardLinkBySetAndCollectorNumber(setCode, collectorNumber);
